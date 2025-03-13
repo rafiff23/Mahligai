@@ -123,10 +123,15 @@ if not df_filtered.empty:
     
     with st.expander("📸 Dokumentasi Gambar Terkait Status Terakhir"):
         # Buat Dictionary mapping nama file → ID dari df2 (sheet FOTO)
-        foto_mapping = dict(zip(df2['Foto'], df2['ID']))
+        # Hapus baris dengan nama file kosong/null dari df2
+        df2_clean = df2[df2['Foto'].notna() & (df2['Foto'].astype(str).str.strip() != "")]
+        foto_mapping = dict(zip(df2_clean['Foto'], df2_clean['ID']))
 
         # Ambil nama file dari status terakhir
         image_files = [latest_data.get(col, None) for col in foto_fields]
+
+        # Subheader
+        st.subheader("📸 Dokumentasi Gambar Terkait Status Terakhir")
 
         # Layout kolom
         cols = st.columns(len(foto_fields))
@@ -154,3 +159,4 @@ if not df_filtered.empty:
 else:
     st.info("Data tidak ditemukan untuk driver tersebut.")
     
+
