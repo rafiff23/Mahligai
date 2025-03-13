@@ -124,7 +124,7 @@ if not df_filtered.empty:
 
     # --- Expandable Detailed Data ---
     with st.expander("📂 Lihat Semua Riwayat Driver"):
-        st.dataframe(df_filtered.reset_index(drop=True))
+        st.dataframe(df_filtered[['Name', 'Plat', 'Nama Perusahaan', 'Date', 'Time', '20 Feet / 40 Feet', 'Ekspor / Impor', 'Status']].reset_index(drop=True))
 
 else:
     st.info("Data tidak ditemukan untuk driver tersebut.")
