@@ -4,11 +4,11 @@ import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
 import requests
+import pydeck as pdk
 
 st.set_page_config(page_title="Cek Status Driver", layout="wide")
 st.title("📄 Cek Status Driver")
 
-# --- Load Data from Google Sheets ---
 scope = ["https://www.googleapis.com/auth/spreadsheets"]
 creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
 client = gspread.authorize(creds)
@@ -72,6 +72,25 @@ if not df_filtered.empty:
     status_text = latest_data.get('Status', 'N/A')
     status_color = status_colors.get(status_text, '#FFFFFF')
 
+# --- Pisahkan jadi dua kolom
+    # col1, col2 = st.columns([0.5, 0.5])
+
+    # KIRI = Status Driver
+    # with col1:
+        # Ambil dan parsing lokasi
+    location_str = latest_data.get('Location', None)
+    location_text = "Tidak tersedia"
+    lat, lon = None, None
+
+    if location_str and isinstance(location_str, str) and "," in location_str:
+        try:
+            lat_str, lon_str = location_str.split(",")
+            lat, lon = float(lat_str.strip()), float(lon_str.strip())
+            location_text = f"{lat}, {lon}"
+        except:
+            location_text = "Format koordinat tidak valid"
+
+    # Tampilkan box status lengkap dengan koordinat
     st.markdown("""
         <div style="display: flex; flex-direction: column; background-color: #1f1f2e; padding: 25px; border-radius: 15px; box-shadow: 0 6px 15px rgba(0,0,0,0.3);">
             <div style="font-size: 36px; font-weight: bold; color: {status_color}; margin-bottom: 20px;">Status: {status_text}</div>
@@ -80,7 +99,8 @@ if not df_filtered.empty:
                 <b>Tanggal:</b> {date}<br>
                 <b>Jam:</b> {time}<br>
                 <b>Ukuran Kontainer:</b> {container}<br>
-                <b>Ekspor / Impor:</b> {ekspor}
+                <b>Ekspor / Impor:</b> {ekspor}<br>
+                <b>Koordinat Lokasi:</b> {location_text}
             </div>
         </div>
     """.format(
@@ -90,9 +110,14 @@ if not df_filtered.empty:
         date=latest_data.get('Date', 'N/A').strftime('%Y-%m-%d') if pd.notnull(latest_data.get('Date')) else 'N/A',
         time=latest_data.get('Time', 'N/A'),
         container=latest_data.get('20 Feet / 40 Feet', 'N/A'),
-        ekspor=latest_data.get('Ekspor / Impor', 'N/A')
+        ekspor=latest_data.get('Ekspor / Impor', 'N/A'),
+        location_text=location_text
     ), unsafe_allow_html=True)
-    
+
+    # Peta langsung di bawah box status (tetap dalam col1)
+    if lat and lon:
+        location_df = pd.DataFrame({'lat': [lat], 'lon': [lon]})
+        st.map(location_df)
     
     st.markdown("<br><br>", unsafe_allow_html=True)
     
@@ -129,19 +154,3 @@ if not df_filtered.empty:
 else:
     st.info("Data tidak ditemukan untuk driver tersebut.")
     
-
-# # Ekstrak file ID dari link
-
-
-# Link Google Drive (view)
-
-# # Ambil file ID
-# file_id = view_url.split('/d/')[1].split('/')[0]
-
-# # Buat direct image URL
-# image_url = f"https://drive.google.com/uc?export=view&id={file_id}"
-
-# response = requests.get(image_url)
-# st.image(response.content)
-
-
