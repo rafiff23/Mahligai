@@ -124,7 +124,7 @@ else:
     last_year = current_year
 
 # Filter BEFORE grouping
-df_selesai = df[df['Status'] == 'selesai']
+df_selesai = df[df['Status'] == 'Selesai']
 
 df_this_month = df_selesai[
     (df_selesai['Date'].dt.month == current_month) &
@@ -221,7 +221,7 @@ color_map = {
 
 # --- Line Chart: Status 'Selesai' Over Time ---
 df_grouped = df.groupby(['Date', 'Status'])['Driver'].count().reset_index(name='Count')
-df_selesai_time = df_grouped[df_grouped['Status'] == 'selesai']
+df_selesai_time = df_grouped[df_grouped['Status'] == 'Selesai']
 
 fig_line = px.line(
     df_selesai_time,
@@ -248,7 +248,7 @@ fig_line.update_layout(
 )
 
 # --- Bar Chart: Top 10 Drivers with 'Selesai' Status ---
-top_drivers = df[df['Status'] == 'selesai']['Name'].value_counts().nlargest(10).reset_index()
+top_drivers = df[df['Status'] == 'Selesai']['Name'].value_counts().nlargest(10).reset_index()
 top_drivers.columns = ['Name', 'Total Selesai']
 
 fig_driver = px.bar(
@@ -269,7 +269,7 @@ fig_driver.update_layout(
 fig_driver.update_traces(marker_line_color='black', marker_line_width=1)
 
 # --- Bar Chart: Top 10 Plat and Perusahaan ---
-df_selesai = df[df['Status'] == 'selesai']
+df_selesai = df[df['Status'] == 'Selesai']
 
 top_plat = df_selesai['Plat'].value_counts().nlargest(10).reset_index()
 top_plat.columns = ['Plat', 'Total Selesai']
