@@ -10,7 +10,7 @@ st.title("📄 Cek Status Driver")
 
 # --- Load Data from Google Sheets ---
 scope = ["https://www.googleapis.com/auth/spreadsheets"]
-creds = Credentials.from_service_account_file("credentials.json", scopes=scope)
+creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
 client = gspread.authorize(creds)
 
 sheet_id = "1RIW01gtWUobcaug5KtkmNC3KEeGgcAJ-6dKmk-VamTY"
